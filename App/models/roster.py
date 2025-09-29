@@ -7,5 +7,15 @@ class Roster(db.Model):
     def __init__ (self, rosterID):
         self.rosterID = rosterID
         self.shifts = []    
+        pass
 
-    def __repr__(self):
+    def get_shifts(self):
+        return self.shifts
+    
+    def get_staff_shifts(self, staffID):
+        staff_shifts = [shift for shift in self.shifts if shift.staffID == staffID]
+        return staff_shifts
+    
+    def get_shifts_report(self):
+        report = f'Roster ID: {self.rosterID} has {len(self.shifts)} shifts.'
+        return report

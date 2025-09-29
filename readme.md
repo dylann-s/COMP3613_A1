@@ -1,3 +1,5 @@
+*See assisgnment specific instructions at end*
+
 ![Tests](https://github.com/uwidcit/flaskmvc/actions/workflows/dev.yml/badge.svg)
 
 # Flask MVC Template
@@ -186,3 +188,18 @@ If you are running into errors in gitpod when updateding your github actions fil
 ## Database Issues
 
 If you are adding models you may need to migrate the database with the commands given in the previous database migration section. Alternateively you can delete you database file.
+
+
+## Staff Commands
+flask staff list - lists all staff in the database including admins
+flask staff shifts [fromDate] [toDate] - view all shifts from ____ day to ____ day
+
+## Admin Commands
+flask admin create_staff [firstName] [lastName] [role] - create a staff member
+flask admin delete_staff [staffID]                     - delete a staff member
+flask admin create_shift [date] [start_time] [end_time]- create a shift 
+flask admin delete_shift [shiftID]                     - delete a shift
+
+## Shift Commands
+
+## Roster Commands
