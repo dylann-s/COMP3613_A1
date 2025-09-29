@@ -11,6 +11,8 @@ class Shift(db.Model):
     clockIn = db.Column(db.Time, nullable=True)
     clockOut = db.Column(db.Time, nullable=True)
 
+    staff = db.relationship("Staff", backref="shifts")
+
     def __init__(self, date, sTime, eTime, staffID=None, clockIn=None, clockOut=None):
         self.staffID = staffID
         self.date = date

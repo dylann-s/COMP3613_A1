@@ -191,19 +191,30 @@ If you are adding models you may need to migrate the database with the commands 
 
 
 ## Staff Commands
+```bash
 flask staff list                       - lists all staff in the database including admins
-flask staff shifts [fromDate] [toDate] - view all roster from ____ day to ____ day
-flask staff all_shifts                 - view all shifts in roster
-
+```
 
 ## Admin Commands
+```bash
+Follows formats: YYYY-MM-DD
+                 HH:MM
+
 flask admin create_staff [firstName] [lastName] [role] - create a staff member
 flask admin delete_staff [staffID]                     - delete a staff member
 flask admin create_shift [date] [start_time] [end_time]- create a shift 
 flask admin delete_shift [shiftID]                     - delete a shift
 flask admin add_to_shift [shiftID] [staffID]           - add staff to shift
 flask admin remove_from_shift [shiftID]                - remove assigned staff from shift
+```
 
 ## Shift Commands
+```bash
+flask shifts from [fromDate] [toDate]   - view all roster from ____ day to ____ day
+flask shifts all                        - view all shifts in roster
+flask shifts indi [staffID]             - view shift assignments for staff with ID
+```
 
 ## Roster Commands
+```bash 
+```

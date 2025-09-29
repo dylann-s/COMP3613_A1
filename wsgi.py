@@ -197,6 +197,42 @@ app.cli.add_command(admin_cli)
 Shifts Commands
 '''
 
+shifts_cli = AppGroup('shifts', help='Admin object commands')
+
+@shifts_cli.command("from", help="View shifts from ___ to ___ (format: YYYY-MM-DD)")
+@click.argument("from_date") # Format: YYYY-MM-DD
+@click.argument("to_date")   # Format: YYYY-MM-DD
+def list_shifts_command(from_date, to_date):
+    shift_list = Shift.query.filter(Shift.date >= from_date, Shift.date <= to_date).all()
+    for shift in shift_list:
+        assigned = f", Assigned to Staff ID: {shift.staffID}" if shift.staffID else ", Not assigned"
+        print(f"Shift ID: {shift.shiftID}, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}{assigned}")
+
+@shifts_cli.command("all", help="View all shifts")
+def list_all_shifts_command():
+    shift_list = Shift.query.all()
+    for shift in shift_list:
+        assigned = f", Assigned to Staff ID: {shift.staffID}" if shift.staffID else ", Not assigned"
+        print(f"Shift ID: {shift.shiftID}, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}{assigned}")
+
+
+@shifts_cli.command("indi", help="View roster for a specific staff member by ID")
+@click.argument("staff_id")
+def view_roster_command(staff_id):
+    roster = Shift.query.filter_by(staffID=staff_id).all()
+    if roster:
+        for shift in roster:
+            staff = shift.staff  # Access the staff related to this shift
+            if staff:  # Just in case it's None
+                print(f"Shift ID: {shift.shiftID}, {staff.fName} {staff.lName}, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}")
+            else:
+                print(f"Shift ID: {shift.shiftID}, Unassigned staff, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}")
+    else:
+        print(f"No shifts found for Staff ID: {staff_id}")
+
+
+app.cli.add_command(shifts_cli)
+
 '''
 Roster Commands
 '''
