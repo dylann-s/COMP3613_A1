@@ -3,7 +3,7 @@ from datetime import datetime
 from flask.cli import with_appcontext, AppGroup
 
 from App.database import db, get_migrate
-from App.models import User, Roster, Shift, Staff, Admin
+from App.models import User, Roster, Shift, Staff, Admin, staff
 from App.main import create_app
 from App.controllers import ( create_user, get_all_users_json, get_all_users, initialize )
 
@@ -80,8 +80,6 @@ def list_staff_command():
     for staff in staff_list:
         print(f"ID: {staff.staffID}, Name: {staff.fName} {staff.lName}, Role: {staff.role}")
 
-app.cli.add_command(staff_cli)
-
 @staff_cli.command("shifts", help="View shifts from ___ to ___ (format: YYYY-MM-DD)")
 @click.argument("from_date") # Format: YYYY-MM-DD
 @click.argument("to_date")   # Format: YYYY-MM-DD
@@ -91,6 +89,26 @@ def list_shifts_command(from_date, to_date):
         assigned = f", Assigned to Staff ID: {shift.staffID}" if shift.staffID else ", Not assigned"
         print(f"Shift ID: {shift.shiftID}, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}{assigned}")
 
+@staff_cli.command("all_shifts", help="View all shifts")
+def list_all_shifts_command():
+    shift_list = Shift.query.all()
+    for shift in shift_list:
+        assigned = f", Assigned to Staff ID: {shift.staffID}" if shift.staffID else ", Not assigned"
+        print(f"Shift ID: {shift.shiftID}, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}{assigned}")
+
+'''
+@staff_cli.command("indi_roster", help="View roster for a specific staff member by ID")
+@click.argument("staff_id")
+def view_roster_command(staff_id):
+    roster = Shift.query.filter_by(staffID=staff_id).all()
+    if roster:
+        for shift in roster:
+            print(f"Shift ID: {shift.shiftID}, {staff.fName} {staff.lName}, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}")
+    else:
+        print(f"No shifts found for Staff ID: {staff_id}")
+'''
+
+app.cli.add_command(staff_cli)
 '''
 Admin Commands
 '''
@@ -147,6 +165,31 @@ def delete_shift(shift_id):
         print(f"Shift with ID {shift_id} deleted.")
     else:
         print(f"Shift with ID {shift_id} not found.")
+
+@admin_cli.command("add_to_shift", help="Add a staff member to a shift")
+@click.argument("shift_id")
+@click.argument("staff_id")
+def add_to_shift_command(shift_id, staff_id):
+    shift = Shift.query.get(shift_id)
+    staff = Staff.query.get(staff_id)
+    if shift and staff:
+        shift.staffID = staff.staffID
+        db.session.commit()
+        print(f"Staff member {staff.fName} {staff.lName} added to shift ID {shift_id}.")
+    else:
+        print(f"Shift with ID {shift_id} or Staff with ID {staff_id} not found.")
+
+@admin_cli.command("remove_from_shift", help="Remove a staff member from a shift")
+@click.argument("shift_id")
+def remove_from_shift_command(shift_id):
+    shift = Shift.query.get(shift_id)
+    if shift:
+        shift.staffID = None
+        db.session.commit()
+        print(f"Staff member {staff.fName} {staff.lName} removed from shift ID {shift_id}.")
+    else:
+        print(f"Shift with ID {shift_id} not found.")
+
 
 app.cli.add_command(admin_cli)
 
