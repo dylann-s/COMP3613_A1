@@ -3,7 +3,7 @@ from datetime import datetime
 from flask.cli import with_appcontext, AppGroup
 
 from App.database import db, get_migrate
-from App.models import User, Roster, Shift, Staff, Admin, staff
+from App.models import User, Shift, Staff, Admin, staff
 from App.main import create_app
 from App.controllers import ( create_user, get_all_users_json, get_all_users, initialize )
 
@@ -96,17 +96,44 @@ def list_all_shifts_command():
         assigned = f", Assigned to Staff ID: {shift.staffID}" if shift.staffID else ", Not assigned"
         print(f"Shift ID: {shift.shiftID}, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}{assigned}")
 
-'''
-@staff_cli.command("indi_roster", help="View roster for a specific staff member by ID")
+@staff_cli.command("clock_in", help="Clock in to a shift")
+@click.argument("shift_id")
 @click.argument("staff_id")
-def view_roster_command(staff_id):
-    roster = Shift.query.filter_by(staffID=staff_id).all()
-    if roster:
-        for shift in roster:
-            print(f"Shift ID: {shift.shiftID}, {staff.fName} {staff.lName}, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}")
+def clock_in_command(shift_id, staff_id):
+    shift = Shift.query.get(shift_id)
+    staff = Staff.query.get(staff_id)
+    if shift and staff:
+        if shift.staffID == staff.staffID:
+            if shift.clockIn is None:
+                shift.clockIn = datetime.now().time()
+                db.session.commit()
+                print(f"{staff.fName} {staff.lName} clocked in to shift ID {shift_id} at {shift.clockIn}.")
+            else:
+                print(f"Shift ID {shift_id} already has a clock-in time: {shift.clockIn}.")
+        else:
+            print(f"Shift ID {shift_id} is not assigned to Staff ID {staff_id}.")
     else:
-        print(f"No shifts found for Staff ID: {staff_id}")
-'''
+        print(f"Shift with ID {shift_id} or Staff with ID {staff_id} not found.")
+
+@staff_cli.command("clock_out", help="Clock out from a shift")
+@click.argument("shift_id")
+@click.argument("staff_id")
+def clock_out_command(shift_id, staff_id):
+    shift = Shift.query.get(shift_id)
+    staff = Staff.query.get(staff_id)
+    if shift and staff:
+        if shift.staffID == staff.staffID:
+            if shift.clockOut is None:
+                shift.clockOut = datetime.now().time()
+                db.session.commit()
+                print(f"{staff.fName} {staff.lName} clocked out from shift ID {shift_id} at {shift.clockOut}.")
+            else:
+                print(f"Shift ID {shift_id} already has a clock-out time: {shift.clockOut}.")
+        else:
+            print(f"Shift ID {shift_id} is not assigned to Staff ID {staff_id}.")
+    else:
+        print(f"Shift with ID {shift_id} or Staff with ID {staff_id} not found.")
+
 
 app.cli.add_command(staff_cli)
 '''
@@ -191,6 +218,29 @@ def remove_from_shift_command(shift_id):
         print(f"Shift with ID {shift_id} not found.")
 
 
+@admin_cli.command("roster_report", help="View full roster report")
+def roster_report_command():
+    shift_list = Shift.query.all()
+    for shift in shift_list:
+        if shift.staff:
+            print(f"Shift ID: {shift.shiftID}, {shift.staff.fName} {shift.staff.lName}, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}, Clock In: {shift.clockIn}, Clock Out: {shift.clockOut}")
+        else:
+            print(f"Shift ID: {shift.shiftID}, Unassigned staff, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}")
+
+@admin_cli.command("individual_report", help="View individual report")
+@click.argument("staff_id")
+def individual_report_command(staff_id):
+    roster = Shift.query.filter_by(staffID=staff_id).all()
+    if roster:
+        for shift in roster:
+            staff = shift.staff  # Access the staff related to this shift
+            if staff:  # Just in case it's None
+                print(f"Shift ID: {shift.shiftID}, {staff.fName} {staff.lName}, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}, Clock In: {shift.clockIn}, Clock Out: {shift.clockOut}")
+            else:
+                print(f"Shift ID: {shift.shiftID}, Unassigned staff, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}, Clock In: {shift.clockIn}, Clock Out: {shift.clockOut}")
+    else:
+        print(f"No shifts found for Staff ID: {staff_id}")
+
 app.cli.add_command(admin_cli)
 
 '''
@@ -232,7 +282,3 @@ def view_roster_command(staff_id):
 
 
 app.cli.add_command(shifts_cli)
-
-'''
-Roster Commands
-'''

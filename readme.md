@@ -1,4 +1,4 @@
-*See assisgnment specific instructions at end*
+*See assisgnment specific commands at end*
 
 ![Tests](https://github.com/uwidcit/flaskmvc/actions/workflows/dev.yml/badge.svg)
 
@@ -190,9 +190,17 @@ If you are running into errors in gitpod when updateding your github actions fil
 If you are adding models you may need to migrate the database with the commands given in the previous database migration section. Alternateively you can delete you database file.
 
 
+##Starting
+```bash
+flask run
+flask init
+```
+
 ## Staff Commands
 ```bash
-flask staff list                       - lists all staff in the database including admins
+flask staff list                                       - lists all staff in the database including admins
+flask staff clock_in [shiftID] [staffID]               - staff with ID _ clocks into shift at current time
+flask staff clock_out [shiftID] [staffID]              - staff with ID _ clocks out of shift at current time
 ```
 
 ## Admin Commands
@@ -206,6 +214,8 @@ flask admin create_shift [date] [start_time] [end_time]- create a shift
 flask admin delete_shift [shiftID]                     - delete a shift
 flask admin add_to_shift [shiftID] [staffID]           - add staff to shift
 flask admin remove_from_shift [shiftID]                - remove assigned staff from shift
+flask admin roster_report                              - view full roster report
+flask admin individual_report [staffID]                - view individual staff roster report
 ```
 
 ## Shift Commands
@@ -213,8 +223,4 @@ flask admin remove_from_shift [shiftID]                - remove assigned staff f
 flask shifts from [fromDate] [toDate]   - view all roster from ____ day to ____ day
 flask shifts all                        - view all shifts in roster
 flask shifts indi [staffID]             - view shift assignments for staff with ID
-```
-
-## Roster Commands
-```bash 
 ```

@@ -4,7 +4,6 @@ from datetime import datetime, time, date
 class Shift(db.Model):
     shiftID = db.Column(db.Integer, primary_key=True)
     staffID = db.Column(db.Integer, db.ForeignKey('staff.staffID'), nullable=True)
-    rosterID = db.Column(db.Integer, db.ForeignKey('roster.rosterID'), nullable=True)
     date = db.Column(db.Date, nullable=False)
     sTime = db.Column(db.Time, nullable=False)
     eTime = db.Column(db.Time, nullable=False)

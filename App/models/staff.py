@@ -22,6 +22,7 @@ class Staff(db.Model):
     def view_staff(self):
         return f'Staff ID: {self.staffID}, Name: {self.fName} {self.lName}, Role: {self.role}'
     
+    '''
     def clock_in(self, shift_id):
         from .shift import Shift
         shift = Shift.query.get(shift_id)
@@ -37,6 +38,7 @@ class Staff(db.Model):
             # Add clock out logic here
             return f'{self.fName} {self.lName} clocked out from shift {shift_id}'
         return f'Shift {shift_id} not found or not assigned to you'
+    '''
 
     def view_roster(self):
         from .shift import Shift
