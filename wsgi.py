@@ -16,7 +16,25 @@ migrate = get_migrate(app)
 # This command creates and initializes the database
 @app.cli.command("init", help="Creates and initializes the database")
 def init():
-    initialize()
+    db.drop_all()
+    db.create_all()
+
+    staff1 = Staff(fName='John', lName='Doe', role='admin')
+    staff2 = Staff(fName='Jane', lName='Smith', role='staff')
+    staff3 = Staff(fName='Alice', lName='Johnson', role='staff')
+    staff4 = Staff(fName='Bob', lName='Brown', role='staff')
+    
+    db.session.add_all([staff1, staff2, staff3, staff4])
+    db.session.commit()
+
+    shift1 = Shift(date=datetime(2025, 10, 1).date(), sTime=datetime(2025, 10, 1, 9, 0).time(), eTime=datetime(2025, 10, 1, 17, 0).time(), staffID=staff1.staffID)
+    shift2 = Shift(date=datetime(2025, 10, 2).date(), sTime=datetime(2025, 10, 2, 10, 0).time(), eTime=datetime(2025, 10, 2, 18, 0).time(), staffID=staff3.staffID)
+    shift3 = Shift(date=datetime(2025, 10, 3).date(), sTime=datetime(2025, 10, 3, 8, 0).time(), eTime=datetime(2025, 10, 3, 16, 0).time())
+    shift4 = Shift(date=datetime(2025, 10, 4).date(), sTime=datetime(2025, 10, 4, 12, 0).time(), eTime=datetime(2025, 10, 4, 20, 0).time(), staffID=staff4.staffID)
+
+    db.session.add_all([shift1, shift2, shift3, shift4])
+    db.session.commit()
+
     print('database initialized')
 
 '''
@@ -89,13 +107,6 @@ def list_shifts_command(from_date, to_date):
         assigned = f", Assigned to Staff ID: {shift.staffID}" if shift.staffID else ", Not assigned"
         print(f"Shift ID: {shift.shiftID}, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}{assigned}")
 
-@staff_cli.command("all_shifts", help="View all shifts")
-def list_all_shifts_command():
-    shift_list = Shift.query.all()
-    for shift in shift_list:
-        assigned = f", Assigned to Staff ID: {shift.staffID}" if shift.staffID else ", Not assigned"
-        print(f"Shift ID: {shift.shiftID}, Date: {shift.date}, Start: {shift.sTime}, End: {shift.eTime}{assigned}")
-
 @staff_cli.command("clock_in", help="Clock in to a shift")
 @click.argument("shift_id")
 @click.argument("staff_id")
@@ -136,6 +147,8 @@ def clock_out_command(shift_id, staff_id):
 
 
 app.cli.add_command(staff_cli)
+
+
 '''
 Admin Commands
 '''
@@ -169,7 +182,6 @@ def delete_staff_command(staff_id):
 def create_shift(date, start_time, end_time):
 
     try:
-        # Convert inputs to proper Python types
         parsed_date = datetime.strptime(date, "%Y-%m-%d").date()  # For db.Date
         parsed_start_time = datetime.strptime(start_time, "%H:%M").time()  # For db.Time
         parsed_end_time = datetime.strptime(end_time, "%H:%M").time()      # For db.Time
@@ -252,7 +264,7 @@ shifts_cli = AppGroup('shifts', help='Admin object commands')
 @shifts_cli.command("from", help="View shifts from ___ to ___ (format: YYYY-MM-DD)")
 @click.argument("from_date") # Format: YYYY-MM-DD
 @click.argument("to_date")   # Format: YYYY-MM-DD
-def list_shifts_command(from_date, to_date):
+def list_shifts_from_command(from_date, to_date):
     shift_list = Shift.query.filter(Shift.date >= from_date, Shift.date <= to_date).all()
     for shift in shift_list:
         assigned = f", Assigned to Staff ID: {shift.staffID}" if shift.staffID else ", Not assigned"
@@ -268,7 +280,7 @@ def list_all_shifts_command():
 
 @shifts_cli.command("indi", help="View roster for a specific staff member by ID")
 @click.argument("staff_id")
-def view_roster_command(staff_id):
+def individual_shifts_command(staff_id):
     roster = Shift.query.filter_by(staffID=staff_id).all()
     if roster:
         for shift in roster:
